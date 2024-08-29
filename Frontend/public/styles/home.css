@@ -1,0 +1,159 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    font-family: 'Sedan', sans-serif; 
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 5vh;
+    margin-right: 10px;
+}
+
+.app-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 20px; 
+}
+
+.nav-button {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: none;
+    background-color: #F4FEC1;
+    color: rgb(15, 14, 14);
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.nav-button:hover {
+    color: white;
+    background-color: #555556; 
+   
+}
+
+/* for blog posts */
+.all-blogs-container {
+    max-width: 480px;
+    margin: 0 auto;   
+    padding: 20px;     
+}
+
+/* blog post card */
+.blog-post {
+    border: 1px solid #dee2e6; 
+    border-radius: 8px;        
+    margin: 20px 0;            
+    padding: 15px;             
+    transition: transform 0.3s ease; 
+}
+
+.blog-post:hover {
+    transform: translateY(-3px); 
+    box-shadow: 0 12px 15px rgba(0, 0, 0, 0.1); 
+
+}
+
+.blog-post h2 {
+    font-size: 1.8rem;           
+    margin: 0;                 
+    color: #333;               
+}
+
+.blog-post p {
+    margin: 10px 0;              
+    color: #555;                 
+}
+
+.blog-post strong {
+    color: #000;
+}
+
+.blog-post hr {
+    border: 0;                   
+    height: 1px;                 
+    background-color: #e9ecef;   
+    margin: 15px 0;             
+}
+
+.blog-post a {
+    color: #007bff;              
+    text-decoration: none;        /* Remove underline from links */
+    font-weight: bold;            /* Bold text for emphasis */
+}
+
+.blog-post a:hover {
+    text-decoration: underline;   /* Underline on hover */
+}
+
+/* skeleton loading */
+
+.skeleton-loader {
+    display: flex;
+    flex-direction: column;
+}
+
+.skeleton-post {
+    border: 1px solid #dee2e6; 
+    border-radius: 8px;        
+    margin: 20px 0;           
+    padding: 15px;             
+    position: relative;        
+    overflow: hidden;          
+    animation: shimmer 2s infinite;
+}
+
+.skeleton-post:hover {
+    animation-play-state: paused;
+}
+
+.skeleton-title {
+    height: 20px;
+    margin: 10px 0;
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.skeleton-author {
+    height: 12px;
+    margin: 10px 0;
+    width: 50%; 
+    background-color: #ddd; 
+    border-radius: 5px;
+}
+
+.skeleton-content {
+    height: 14px;
+    margin: 10px 0;
+    background-color: #ddd; 
+    border-radius: 5px;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200%; }
+    100% { background-position: 200%; }
+}
+
+.skeleton-post {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 20%, rgba(255, 255, 255, 0.2) 40%);
+    background-size: 200% 100%; 
+    animation: shimmer 1.5s linear infinite; /* Shimmer effect */
+}

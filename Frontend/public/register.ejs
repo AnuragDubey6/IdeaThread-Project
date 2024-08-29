@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register on iWrite</title>
+    <link rel="stylesheet" href="styles/fonts.css">
+    <link rel="stylesheet" href="styles/register.css">
+</head>
+<body>
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <p>User Registered. Please Click Here to login</p>
+            <button class="submit-btn" id="close-popup">Login</button>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <div class="top-container">
+            <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <h1>Register on iWrite</h1>
+        </div>
+        <form id="registerForm">
+            <div class="form-group flex-group">
+                <div class="flex-item">
+                    <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" name="first-name" required>
+                </div>
+                <div class="flex-item">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" name="last-name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phoneNo" required>
+            </div>
+            <div class="flex-item">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="flex-item" style="margin-bottom: 10px;margin-top: 10px;">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button id="register-btn" type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</body>
+
+<script id="register-script">
+    document.getElementById('close-popup').addEventListener('click',()=>{
+        // document.getElementById('popup').classList.remove('active');
+
+        // redirect user to login
+        window.location.href ='/login';
+
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add an event listener for form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission
+
+            // Prepare the payload to be sent
+            const payload = {
+                'firstName':document.getElementById('first-name').value,
+                'lastName':document.getElementById('last-name').value,
+                'phoneNo':document.getElementById('phone').value,
+                'email':document.getElementById('email').value,
+                'password':document.getElementById('password').value,
+                'username':document.getElementById('username').value,
+            };
+
+            try {
+                console.log(`> registering user :`);
+                console.log(payload);
+
+                const response = await fetch('/api-register-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload), 
+                });
+
+                if (response.ok) {
+                    const jsonResponse = await response.json();
+                    console.log('user saved:');
+                    console.log(JSON.stringify(jsonResponse))
+
+                    // alert('user saved successfully!'); 
+                    setTimeout(()=>{
+                            // window.location.href = `/login`;
+                            document.getElementById('popup').classList.add('active');
+                    },1000);
+
+                } else {
+                    console.error('Failed to save user', response.statusText); 
+                    alert('Failed to save user. Please try again.'); 
+                }
+            } catch (error) {
+                console.error('Error:', error); // Log the error
+                alert('An error occurred while saving the user.'); 
+            }
+        });
+    });
+</script>
+
+</html>

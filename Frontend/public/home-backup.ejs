@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/home.css">
+    <title>iWrite - Home</title>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <nav class="nav-buttons">
+            <a id="user-account-btn" href="#" class="nav-button">Your Account</a>
+            <a id="contact-us-btn" href="#" class="nav-button">Contact Us</a>
+            <a id="create-post-btn" href="#" class="nav-button">Write A Blog</a>
+        </nav>
+    </header>
+
+    <main>
+        <%
+            function titleCaseText(text) {
+                return text.toLowerCase().split(' ').map(function(word) {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }).join(' ');
+            }
+        %>
+        <!-- render blog posts here -->
+        <% if (blogPosts && blogPosts.length) { %>
+            <div class="all-blogs-container">
+            <!-- contains a list of all blog posts -->
+              <% blogPosts.forEach(post => { 
+                var postTitle = titleCaseText(post.title);
+                var postedOn = new Date(post.createdAt).toLocaleDateString();
+                var contentClipped = post.content.substring(0, 100) + "...";
+
+              %>
+                <div class="blog-post" id="blog-post-<%= post.id %>">
+                  <h2 ><%= postTitle %></h2>
+                  <p >
+                    <strong><%= post.author %></strong> posted on <%= postedOn %>
+                  </p>
+                  <p >
+                    <%= contentClipped %>
+                    <a href="/blog/<%= post.id %>" style="color: blue; text-decoration: underline;">read more</a>
+                  </p>
+                </div>
+              <% }); %>
+            </div>
+        <% } else { %>
+            <p>No blog posts available.</p>
+        <% } %>
+          
+    </main>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../styles/fonts.css">
+    <link rel="stylesheet" type="text/css" href="../styles/blog.css">
+    <link rel="stylesheet" type="text/css" href="../styles/home.css">
+    <!-- link rel = "stylesheet" type="text/css" href="/styles.css" -->
+ 
+ 
+    <title>Blog Page</title>
+</head>
+ 
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="../images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <nav class="nav-buttons">
+            <% if(userAuthorized) {%>
+                <!-- add href with user-info also a secure route -->
+                <a id="user-account-btn" href="#" class="nav-button">Welcome <%= userData.username %> </a>
+                <a id="profile-btn" href="/profile/<%= userData.userId %>" class="nav-button">Profile</a>
+
+            <% }else{ %>
+                <a id="user-account-btn" href="#" class="nav-button">Login to Your Account</a>
+            <% } %>
+            <a id="create-post-btn" href="/createBlog" class="nav-button">Write A Blog</a>
+        </nav>
+    </header>
+ 
+    <main>
+        <div id="blogs-parent-div" class="all-blogs-container">
+            <div class="skeleton-loader">
+                <div class="skeleton-post" style="background-color: #ffdddd;"> <!-- Light Red -->
+                    <h2 class="skeleton-title"></h2>
+                    <p class="skeleton-author"></p>
+                    <hr>
+                    <p class="skeleton-content"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+ 
+ 
+<script id="content-loader">
+    const blogId = "<%= blogId %>";
+ 
+    var blogData;
+    var isDataFetched = false;
+    function triggerBlogDataFetched() {
+        const event = new CustomEvent('blog-data-available');
+        document.dispatchEvent(event);
+    }
+ 
+ 
+    // Event listener for the custom event 'blog-data-available'
+    document.addEventListener('blog-data-available', () => {
+        // Call renderBlogDiv after a setTimeout of 1 second
+        setTimeout(() => {
+            renderBlogDiv();
+        }, 1000);
+    });
+ 
+ 
+    async function getBlogData() {
+        try {
+            console.log(`getting data from /api-get-blog`);
+            // Perform the fetch request
+	        // is from frontend : api-get-blog -- remains same but request in index.js for this url will take backend api url
+            const response = await fetch(`/api-get-blog/${blogId}`);
+            // Check if the response is ok (status 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Parse the JSON data
+            var responseData = await response.json();
+
+            // JUST ADDED BUT HERE ALSO     UNDEFINED
+            console.log('Full Response Data to check if blog exist:', responseData.blog);
+
+            if(response.ok){
+                // OR THE STRUCTURE TO ADJUST
+                blogData = responseData.blog || responseData;
+                // TO SEE ON CONSOLE THE OUTPUT
+                console.log('Assigned Blog Data:', blogData);
+                isDataFetched = true;
+                setTimeout(triggerBlogDataFetched,1000);
+                console.log('Blog data fetched successfully:');
+ 
+            }
+            
+            
+        } catch (err) {
+            console.log(`>> error while getting blogs data -- ${err}`);
+            document.getElementById("blogs-parent-div").innerHTML = '<p style="color: black;background-color: #ddffdd;">Sorry, the server is not responding. Please try again later.</p>';
+        }
+    }
+ 
+    function titleCaseText(text) {
+                return text.toLowerCase().split(' ').map(function(word) {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }).join(' ');
+    }
+ 
+    function renderBlogDiv() {
+        try {
+            if (isDataFetched) {
+                // 
+                console.log(`>> blog data is now available`);
+
+                //ADDED TO CHECK DBLOG RECEIVED OR NOT
+                console.log('Render Blog Div:', blogData);
+ 
+                // Get the parent div where blog posts will be appended
+                const blogsParentDiv = document.getElementById("blogs-parent-div");
+                // blogsParentDiv.textContent = JSON.stringify(blogData.blog);
+                var post = blogData;
+
+                console.log('Blog stored in POST:', post);
+ 
+                const blogPostDiv = document.createElement('div');
+                blogPostDiv.className = 'blog-post';
+                blogPostDiv.id = `blog-post-${post.blogID}`;
+                var postTitle = titleCaseText(post.title);
+                // Construct inner HTML for the blog post
+                // blogPostDiv.innerHTML = `
+                //     <h2>${postTitle}</h2>
+                //     <p>
+                //         <strong>${post.author}</strong> posted on ${new Date(post.createdAt).toLocaleDateString()}
+                //     </p>
+                //     <hr>
+                //     <p>
+                //         ${post.content}
+                //     </p>
+                // `;
+
+                blogPostDiv.innerHTML = `
+                        <h2>${postTitle}</h2>
+                        <p>
+                            <strong>${post.user.firstName} ${post.user.lastName}</strong> 
+                            (${post.user.username}) posted on ${new Date(post.createdAt).toLocaleDateString()}
+                        </p>
+                        <hr>
+                        <p>
+                            ${post.content}
+                        </p>
+                    `;
+
+                blogsParentDiv.innerHTML = ''; // Clear previous content if any
+                blogsParentDiv.appendChild(blogPostDiv);
+ 
+            } else {
+                console.log(`>> no blog data available | keep showing skeleton loading`);
+            }
+        } catch (err2) {
+            const blogsParentDiv = document.getElementById("blogs-parent-div");
+            blogsParentDiv.innerHTML = '<h1> sorry could not get blog post </h1>'
+            console.log(`.. error while rendering blocks: ${err2}`);
+        }
+    }
+ 
+ 
+    document.addEventListener('DOMContentLoaded', () => {
+        // Call getBlogData when the DOM content is fully loaded
+        getBlogData();
+ 
+    });
+ 
+ 
+</script>
+ 
+</html>

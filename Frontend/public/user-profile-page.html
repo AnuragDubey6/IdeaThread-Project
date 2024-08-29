@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/userprofile.css">
+    <title>iWrite - Home</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <nav class="nav-buttons">
+            <a id="user-account-btn" href="#" class="nav-button">Welcome <%= userdata.username %> </a>
+            <a id="update-profile-btn" href="/update-profile" class="nav-button">Update Profile</a>
+            <a id="user-logout-btn" href="/logout" method="post" class="nav-button">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="profile-information">
+            <div class="profile-photo">
+                <img src="images/Userphoto.jpg" alt="Profile Photo">
+            </div>
+            <div class="profile-details">
+                <h1>Account Information</h1>
+                <div class="info-item">
+                    <span class="info-label">First Name:</span>
+                    <span id="first-Name" class="info-value"><%= user.firstName %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Name:</span>
+                    <span id="last-Name" class="info-value"><%= user.lastName %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Username:</span>
+                    <span id="user-name" class="info-value"><%= user.username %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span id="e-mail" class="info-value"><%= user.email %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    <span id="phone-no" class="info-value"><%= user.phoneNo %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Role:</span>
+                    <span id="role" class="info-value"><%= user.Role %></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Bio:</span>
+                    <span id="bio" class="info-value"><%= user.Bio %></span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>    
+        document.addEventListener('DOMContentLoaded', function(){
+
+            function getUserDetails()
+            {
+                fetch ('/api-user-detail')
+                .then(response=>response.json())
+                .then (data =>{
+                    if(data && data.user){
+                        document.getElementById('first-Name').textContent=data.user.firtsName;
+                        document.getElementById('last-Name').textContent=data.user.lastName;
+                        document.getElementById('user-name').textContent=data.user.username;
+                        document.getElementById('e-mail').textContent=data.user.email;
+                        document.getElementById('phone-no').textContent=data.user.phoneNo;
+                        document.getElementById('role').textContent=data.user.Role;
+                        document.getElementById('bio').textContent=data.user.Bio;
+                    }else{
+                        console.log("Failed to fetch the account details")
+                    }
+                })
+            }
+        })
+    </script>
+</body>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="stylesheet" href="styles/fonts.css">
+    <link rel="stylesheet" href="styles/admin.css">
+    
+    <title>iWrite - Home</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <nav class="nav-buttons">
+            <a id="user-account-btn" href="#" class="nav-button">Your Account</a>
+            <a id="contact-us-btn" href="#" class="nav-button">Contact Us</a>
+            <a id="create-post-btn" href="/createBlog" class="nav-button">Write A Blog</a>
+        </nav>
+    </header>
+
+    <main>
+        <div id="blogs-parent-div" class="all-blogs-container">
+            <!-- Skeleton Loading -->
+            <div class="skeleton-loader">
+                <% for (var i=0;i<10;i++){ %>
+                    <div class="skeleton-post" style="background-color: #ffdddd;"> <!-- Light Red -->
+                        <h2 class="skeleton-title"></h2>
+                        <p class="skeleton-author"></p>
+                        <hr>
+                        <p class="skeleton-content"></p>
+                    </div>
+                    <div class="skeleton-post" style="background-color: #ddddff;"> <!-- Light Blue -->
+                        <h2 class="skeleton-title"></h2>
+                        <p class="skeleton-author"></p>
+                        <hr>
+                        <p class="skeleton-content"></p>
+                    </div>
+                    <div class="skeleton-post" style="background-color: #ddffdd;"> <!-- Light Green -->
+                        <h2 class="skeleton-title"></h2>
+                        <p class="skeleton-author"></p>
+                        <hr>
+                        <p class="skeleton-content"></p>
+                    </div>
+                    <div class="skeleton-post" style="background-color: #ffffdd;"> <!-- Light Yellow -->
+                        <h2 class="skeleton-title"></h2>
+                        <p class="skeleton-author"></p>
+                        <hr>
+                        <p class="skeleton-content"></p>
+                    </div>
+                    <div class="skeleton-post" style="background-color: #ffdd99;"> <!-- Light Orange -->
+                        <h2 class="skeleton-title"></h2>
+                        <p class="skeleton-author"></p>
+                        <hr>
+                        <p class="skeleton-content"></p>
+                    </div>
+                    <div class="skeleton-post" style="background-color: #f5f5dc;"> <!-- Light Beige -->
+                        <h2 class="skeleton-title"></h2>
+                        <p class="skeleton-author"></p>
+                        <hr>
+                        <p class="skeleton-content"></p>
+                    </div>
+                    <% } %>
+            </div>
+        </div>
+    </main>
+</body>
+
+
+<script id="content-loader">
+    var blogsList;
+    var isDataFetched = false;
+    function triggerBlogsDataFetched() {
+        const event = new CustomEvent('blog-data-available');
+        document.dispatchEvent(event);
+    }
+
+
+    // Event listener for the custom event 'blog-data-available'
+    document.addEventListener('blog-data-available', () => {
+        // Call renderBlogDiv after a setTimeout of 1 second
+        setTimeout(() => {
+            renderBlogDiv();
+        }, 1000);
+    });
+
+
+    async function getBlogData() {
+        try {
+            console.log(`getting data from /get-blogs-json`);
+            // Perform the fetch request
+            const response = await fetch('/get-blogs-json');
+            // Check if the response is ok (status 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Parse the JSON data
+            var responseData = await response.json();
+
+            blogsList = responseData.data;
+            console.log(JSON.stringify(blogsList));
+            isDataFetched = true;
+            
+            setTimeout(triggerBlogsDataFetched,100);
+            console.log('Blog data fetched successfully:');
+            
+
+        } catch (err) {
+            console.log(`>> error while getting blogs data -- ${err}`);
+            document.getElementById("blogs-parent-div").innerHTML = '<p style="color: black;background-color: #ddffdd;">Sorry, the server is not responding. Please try again later.</p>';
+        }
+    }
+
+    function titleCaseText(text) {
+                return text.toLowerCase().split(' ').map(function(word) {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }).join(' ');
+    }
+
+    function renderBlogDiv() {
+        try {
+            if (isDataFetched) {
+                // 
+                console.log(`>> blog data is now available`);
+                console.log(`> total items recieved from api : ${blogsList.length}`);
+
+                // Get the parent div where blog posts will be appended
+
+                console.log(blogsList[0]);
+                const blogsParentDiv = document.getElementById("blogs-parent-div");
+                blogsParentDiv.innerHTML = ''; // Clear previous content if any
+                
+                // Loop over items of blogsList to create div blocks
+                blogsList.forEach(post => {
+                    // Create a new div element for each blog post
+                    const blogPostDiv = document.createElement('div');
+                    blogPostDiv.className = 'blog-post';
+                    blogPostDiv.id = `blog-post-${post.blogID}`;
+                    var postTitle = titleCaseText(post.title);
+                    var postContentClip = post.content.substring(0, 100) + "...";
+                    var postedOn = new Date(post.createdAt).toLocaleDateString();
+                    var postedBy = post.user.firstName + " " + post.user.lastName ;
+
+                    // Construct inner HTML for the blog post
+                    blogPostDiv.innerHTML = `
+                        <h2>${postTitle}</h2>
+                        <p>
+                            <strong>${postedBy}</strong> posted on ${postedOn}
+                        </p>
+                        <hr>
+                        <p>
+                            ${postContentClip}
+                            <a href="/blog?id=${post.blogID}">read more</a>
+                        </p>
+                    `;
+
+                    // Append the blog post div to the parent div
+                    blogsParentDiv.appendChild(blogPostDiv);
+                });
+            } else {
+                console.log(`>> no blog data available | keep showing skeleton loading`);
+            }
+        } catch (err2) {
+            console.log(`.. error while rendering blocks: ${err2}`);
+        }
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Call getBlogData when the DOM content is fully loaded
+        getBlogData();
+    });
+
+
+</script>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/home.css">
+    <link rel="stylesheet" href="styles/create-blog-2.css">
+
+    <title>iWrite - Write Blog</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <% if(isUserLoggedin) {%>
+            <!-- add href with user-info also a secure route -->
+            <a id="user-account-btn" href="#" class="nav-button">Welcome <%= userData.username %> </a>
+            <a id="user-profile-btn" href="/profile/<%= userData.userId %>" method="post" class="nav-button">Profile</a>
+            <a id="user-logout-btn" href="/logout" method="post" class="nav-button">Logout</a>
+        <% }else{ %>
+            <a id="user-account-btn" href="/login" class="nav-button">Login to Your Account</a>
+            <a id="home-btn" href="/home" class="nav-button">Home</a>
+
+        <% } %>
+    </header>
+
+
+    <div class="popup" id="popup">
+        <div class="popup-message">
+            Your blog was posted!!<br>Please wait we will redirect you to the blog.
+        </div>
+    </div>
+
+    <main>
+        <% if(isUserLoggedin){ %>
+
+            <!-- here show a form to enter blog title and blog content -->
+            <!-- blog author and blog timestamps will be generated automatically  -->
+            <div class="new-blog-form-container">
+                <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+                <h1>Write Your Blog Here</h1>
+                <form id="blogForm">
+
+                    <div class="container">
+                        <input type="hidden" value="<%= username %>" name="username" id="username">
+                        <label for="title">Title</label>
+                        <div id="title" class="editable-title" contenteditable="true" placeholder="Enter Title..."></div>
+                        <label for="content">Content</label>
+                        <div id="content" class="editable-content" contenteditable="true" placeholder="What's on your mind?"></div>
+                        <button class="submit-button">Submit</button>
+                    </div>
+
+                </form>
+            </div>
+        <% } else { %>
+            <div style="display: flex;align-items: center;justify-content: center;flex-direction: column;">
+                <div>
+                    <h1>Sorry Only registered users can write blog</h1>
+                </div>
+                <div>
+                    <a style="font-size: 32px;" href="/register">Register From Here</a>
+                </div>
+            </div>
+        <% } %>
+    </main>
+</body>
+
+
+<script id="blog-insert">
+
+    function togglePopup() {
+        
+        const popup = document.getElementById('popup');
+        popup.classList.toggle('active');
+        console.log(`popup toggled at ${new Date()}`);
+
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('blogForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Prevent default form submission
+
+        const title = document.getElementById('title').textContent;
+        const content = document.getElementById('content').textContent;
+        const username = document.getElementById('username').value; // Assuming username is in the form
+
+        console.log(`>> title  : ${title} - - content : ${content}`);
+        const payload = {
+            title:title,
+            content:content,
+            username:username,
+        };
+        if(content.length<10 || title.length<5){
+            console.log(`Blog content should be longer!!!`);
+            alert('Content length is insufficient');
+            return;
+        }
+        try {
+            const response = await fetch('/api-create-blog-post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                const jsonResponse = await response.json();
+                console.log('Blog saved:', jsonResponse);
+
+                togglePopup();
+
+                setTimeout(togglePopup,2000); // again to hide it
+
+                const blogId = jsonResponse.message['id'];
+                setTimeout(() => {
+                    window.location.href = `/blog/${blogId}`;
+                }, 3000);
+
+            } else {
+                console.error('Failed to save blog:', response.statusText);
+                alert('Failed to save blog. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while saving the blog.');
+        }
+    });
+});
+
+</script>

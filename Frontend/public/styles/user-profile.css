@@ -1,0 +1,118 @@
+
+
+.profile-container {
+
+
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 60px auto;
+
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 800px;
+}
+
+.profile-icon{
+    padding: 10px 10px 10px 10px;
+    border-radius: 12px;
+    /* background-color: #514cb0; */
+    /* background-color: bisque; */
+    /* border-radius: 50%; */
+    /* justify-content: center; */
+    display: flex;
+    background-color: bisque;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 300px;
+}
+.profile-icon div{
+    margin: 2px;
+}
+
+.profile-icon img {
+
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 1px;
+    margin-right: 5px
+}
+
+.profile-icon img:hover{
+    margin-bottom: 0px;
+    margin-right: 0px;
+    cursor:pointer;
+}
+
+.profile-details {
+    margin-left: 10px;
+    text-align: left;
+}
+
+.profile-field {
+    margin-bottom: 15px;
+}
+
+.profile-field label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.profile-field input {
+    border: none;
+    background-color: #f4f4f4;
+    padding: 10px;
+    width: calc(100% - 20px);
+    border-radius: 5px;
+}
+
+/* for bio */
+
+.editable-content {
+    font-size: 16px;
+    margin-bottom: 20px;
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    padding: 10px;
+    height: 150px;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+    overflow-y: auto;
+}
+
+.editable-content:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+
+/* for popup message */
+.popup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000; /* Display above other elements */
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.popup.active {
+    display: block; /* Display when active */
+    opacity: 1; /* Fade in effect */
+}
+
+
+

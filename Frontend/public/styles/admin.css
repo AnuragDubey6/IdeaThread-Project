@@ -1,0 +1,48 @@
+
+
+#admin-icon {
+    font-size: smaller;
+    text-align: center;
+    position: fixed;
+    bottom: 36px;
+    right: 10px;
+    width: 120px;
+    height: 60px;
+    cursor: pointer;
+    background-color: antiquewhite;
+    padding: 10px 14px 28px 15px;
+}
+
+#admin-icon:hover{
+    background-color: rgb(165, 255, 204);
+}
+
+/* for admin stats */
+
+/* Flex styles for admin stats */
+#admin-stats {
+
+    font-family: 'Sedan', sans-serif; 
+    margin: 40px auto 0px;
+    width: 480px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+  
+.app-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+  
+.app-stats-row:last-child {
+    border-bottom: none;
+}
+
+#allUsersCountDiv , #allBlogsCountDiv{
+    font-size: smaller;
+}

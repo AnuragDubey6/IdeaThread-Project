@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iWrite - Home</title>
+    <link rel="stylesheet" type="text/css" href="../styles/fonts.css">
+    <link rel="stylesheet" type="text/css" href="../styles/home.css">
+    <link rel="stylesheet" type="text/css" href="../styles/user-profile.css">
+
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="../images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <nav class="nav-buttons">
+            <% if(userAuthorized) { %>
+                <!-- add href with user-info also a secure route -->
+                <a id="home-btn" href="/home" class="nav-button">Home </a>
+                <a id="create-post-btn" href="/createBlog" class="nav-button">Write A Blog</a>
+                <a id="user-logout-btn" href="/logout" method="post" class="nav-button">Logout</a>
+            <% }else { %>
+                <a id="user-account-btn" href="/login" class="nav-button">Login to Your Account</a>
+                <a id="home-btn" href="/home" class="nav-button">Home</a>
+            <% } %>
+
+        </nav>
+    </header>
+
+    <!-- popup after user has updated their profile -->
+    <div class="popup" id="popup">
+        <div class="popup-message">
+            Your profile was updated.
+        </div>
+    </div>
+
+
+    <main>
+        <div class="profile-container">
+            <% if(isProfileOwner) { %>
+                <div class="profile-icon" style="background-color: bisque;">
+                    <div>
+                        You cannot edit the blue fields.
+                    </div>
+                    <div>
+                        <img src="../images/Userphoto.jpg" alt="User Icon">
+                    </div>
+                    <a id="update-profile-btn" href="#" class="nav-button">Update Profile</a>
+
+                </div>
+            <% } else { %>
+                <div class="profile-icon" style="background-color: #514cb0;">
+                    <img src="../images/Userphoto.jpg" alt="User Icon">
+                </div>
+            <% } %>
+            <div class="profile-details">
+                <% if(isProfileOwner) {%>
+                    <!-- is the owner of profile -->
+                    <div class="profile-field">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" style="background-color: #514cb0;color: white;" value="<%= requestedProfile.user.username %>" readonly>
+                    </div>
+                    <div class="profile-field">
+                        <label for="firstname">First Name:</label>
+                        <input type="text" id="firstname" style="background-color: #514cb0;color: white;" value="<%= requestedProfile.user.firstName %>" readonly>
+                    </div>
+                    <div class="profile-field">
+                        <label for="lastname">Last Name:</label>
+                        <input type="text" id="lastname" style="background-color: #514cb0;color: white;" value="<%= requestedProfile.user.lastName %>" readonly>
+                    </div>
+                    <div class="profile-field">
+                        <label for="bio">Bio:(edit)</label>
+
+                        <div id="bio" class="editable-content" contenteditable="true" placeholder="About You">
+                            <%= requestedProfile.user.bio %>
+                        </div>
+
+                    </div>
+                    <div class="profile-field">
+                        <label for="email">Email:(edit)</label>
+                        <input type="text" id="email"  value="<%= requestedProfile.user.email %>" >
+                    </div>
+                    <div class="profile-field">
+                        <label for="phone">Phone:(edit)</label>
+                        <input type="text" id="phone"  value="<%= requestedProfile.user.phoneNo %>" >
+                    </div>
+
+                <% } else{ %>
+
+                    <!-- not the owner of profile -->
+                    <div class="profile-field">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" style="background-color: #514cb0;color: white;" value="<%= requestedProfile.user.username %>" readonly>
+                    </div>
+                    <div class="profile-field">
+                        <label for="firstname">First Name:</label>
+                        <input type="text" id="firstname" style="background-color: #514cb0;color: white;" value="<%= requestedProfile.user.firstName %>" readonly>
+                    </div>
+                    <div class="profile-field">
+                        <label for="lastname">Last Name:</label>
+                        <input type="text" id="lastname" style="background-color: #514cb0;color: white;" value="<%= requestedProfile.user.lastName %>" readonly>
+                    </div>
+                    <div class="profile-field">
+                        <label for="bio">Bio:</label>
+
+                        <div id="bio" class="editable-content" >
+                            <%= requestedProfile.user.bio %>
+                        </div>
+
+                    </div>
+ 
+    
+                <% } %>
+                
+            </div>
+        </div>
+    </main>
+
+    <script id="user-profile">    
+        // for logout
+        document.addEventListener('DOMContentLoaded', () => {
+        const logoutButton = document.getElementById('user-logout-btn');
+        
+        if (logoutButton) {
+            logoutButton.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent default action
+                
+                fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'same-origin' // Ensure cookies/session are sent with the request
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/login'; // Redirect to login page
+                } else {
+                    return response.text().then(text => {
+                        console.error('Logout failed:', text);
+                        alert('Logout failed. Please try again.');
+                    });
+                }
+            })
+            .catch(error => {
+                        console.error('Error during logout:', error);
+                        alert('An error occurred. Please try again.');
+                    });
+                });
+            }});
+
+    </script>
+    <script id="update-info">
+        function togglePopup() {
+            
+            const popup = document.getElementById('popup');
+            popup.classList.toggle('active');
+            console.log(`popup toggled at ${new Date()}`);
+
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the button element by ID
+            const updateProfileBtn = document.getElementById('update-profile-btn');
+
+            // Check if the button exists
+            if (updateProfileBtn) {
+                // Add click event listener
+                updateProfileBtn.addEventListener('click', async function (event) {
+                    // Prevent the default behavior
+                    event.preventDefault();
+                    
+                    // Log message to the console
+                    console.log('requested to update profile - - ');
+
+                    const newBio = document.getElementById("bio").textContent;
+                    const newEmail = document.getElementById("email").value;
+                    const newPhone = document.getElementById("phone").value;
+
+                    // request --- --- with all info in payload
+
+                    try {
+                        // Make a PUT request to update the user profile
+                        const response = await fetch('/update-profile', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                // Add the data you want to send to the server
+                                // For example, userId could be a field in the user profile
+                                user_id: "<%= userId %>",
+                                // Add other fields as needed
+                                email: newEmail,
+                                phoneNo: newPhone,
+                                bio: newBio
+                            }),
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log('Profile updated successfully:');
+                            // console.log(data);
+                            togglePopup();
+
+                            setTimeout(togglePopup,1000);
+
+                        } else {
+                            console.error('Error updating profile:', response.statusText);
+                        }
+                    } catch (error) {
+                        console.error('Network error:', error);
+                    }
+                });
+            }
+        });
+
+    </script>
+</body>

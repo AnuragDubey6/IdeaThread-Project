@@ -1,0 +1,330 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/fonts.css">
+    <link rel="stylesheet" href="styles/admin-2.css">
+    <title>iWrite - Admin</title>
+</head>
+
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/iwrite-svg.svg" alt="iWrite Logo" class="logo">
+            <span class="app-name">iWrite</span>
+        </div>
+        <div id="admin-icon" class="user-icon">
+            <span class="tooltiptext">You are viewing this as admin</span><br>
+            <img src="images/admin-icon.svg" style="height: 40px; margin-left: 8px;" alt="User Icon">
+        </div>
+
+        <nav class="nav-buttons">
+            <a id="user-account-btn" href="#" class="nav-button">Welcome <%= userData.username %></a>
+            <a id="user-logout-btn" href="/logout" method="post" class="nav-button">Logout</a>
+            <a id="create-post-btn" href="/createBlog" class="nav-button">Write A Blog</a>
+        </nav>
+    </header>
+
+
+    <!-- popup for delete  -->
+    <!-- popup after user has updated their profile -->
+    <div class="popup" id="popup">
+        <div class="popup-message">
+            <span id="user_id_deleted" style="font-size: 2rem;"> 
+            </span>
+        </div>
+    </div>
+
+    <main>
+        <div id="admin-stats" class="admin-level-stats">
+            <h2>Admin Metrics</h2>
+            <p>Top Level Metrics Are loaded for admin below here</p>
+            <div class="app-stats-grid">
+                <div class="app-stat">
+                    <h3>Total Users on iWrite:</h3>
+                    <div class="big-text" id="allUsersCountDiv">Please wait while we fetch metrics.</div>
+                </div>
+                <div class="app-stat">
+                    <h3>Total Blogs Posted on iWrite:</h3>
+                    <div class="big-text" id="allBlogsCountDiv">Please wait while we fetch metrics.</div>
+                </div>
+            </div>
+        </div>
+        <div class="users-list">
+            <!-- to manage users on app -->
+            <div class="user-info-section">
+                <h2>User Information</h2>
+                <div id="users-grid" class="user-info-grid">
+                    <div class="user-info-header">User Name</div>
+                    <div class="user-info-header">First Name</div>
+                    <div class="user-info-header">Last Name</div>
+                    <div class="user-info-header">Bio</div>
+                    <div class="user-info-header">Delete</div>
+            
+                    <!-- Dummy data rows -->
+                    <div class="user-info-item skeleton-post"><div class="skeleton-content"> ------------- </div></div>
+                    <div class="user-info-item skeleton-post"><div class="skeleton-content"> ------------- </div></div>
+                    <div class="user-info-item skeleton-post"><div class="skeleton-content"> ------------- </div></div>
+                    <div class="user-info-item skeleton-post"><div class="skeleton-content"> ------------- </div></div>
+                    <div class="user-info-item skeleton-post"><div class="skeleton-content"> ------------- </div></div>
+            
+            
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+
+<script id="content-handler">
+    async function getUserCount() {
+        try {
+            const response = await fetch('/get-user-count');
+            if (response.ok) {
+                const data = await response.json();
+                console.log('User Count:', data.count); // Adjust based on your API response
+                return data;
+
+            } else {
+                console.error('Error fetching user count:', response.statusText);
+                return null;
+
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            return null;
+        }
+    }
+
+    async function getBlogCount() {
+        try {
+            const response = await fetch('/get-blog-count');
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Blog Count:', data.count); // Adjust based on your API response
+                return data;
+            } else {
+                console.error('Error fetching blog count:', response.statusText);
+                return null;
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            return null;
+        }
+    }
+
+    // On DOM content loaded, request data from both function calls
+    document.addEventListener('DOMContentLoaded', async function() {
+        var userCount = await getUserCount();
+        var blogCount = await getBlogCount();
+        if(userCount){
+            document.getElementById('allUsersCountDiv').textContent = userCount.count;
+            console.log(`>> total users on app so far : ${JSON.stringify(userCount)}`);
+        }
+        if(blogCount){
+            document.getElementById('allBlogsCountDiv').textContent = blogCount.count;
+            console.log(`>> total blogs on app so far : ${JSON.stringify(blogCount)}`);
+            
+        }
+
+    });
+</script>
+<script id="users-list-handler">
+
+    var deletedIds = [];
+
+    var totalPages;
+    var currentPage;
+    const pageSize=100;
+    var usersList;
+    var responseGlobal;
+    var isDataFetched = false;
+    function triggerusersListFetched() {
+        const event = new CustomEvent('users-list-available');
+        document.dispatchEvent(event);
+    }
+    // Event listener for the custom event 'users-list-available'
+    document.addEventListener('users-list-available', () => {
+        // Call renderBlogDiv after a setTimeout of 1 second
+        setTimeout(() => {
+            renderUsersDiv();
+        }, 2000);
+    });
+
+    // fetch users list
+
+
+    async function getUsersList() {
+        try {
+            console.log(`getting data from /get-users-list`);
+            // Perform the fetch request
+            const response = await fetch('/get-users-list');
+            // Check if the response is ok (status 200-299)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Parse the JSON data
+
+            var responseData = await response.json();
+            // console.log(JSON.stringify(responseData));
+
+            responseGlobal = responseData;
+            usersList = responseData.users;
+            console.log(usersList[0]);
+
+            isDataFetched = true;
+            setTimeout(triggerusersListFetched,1000);
+            console.log('users data fetched successfully:');
+            
+
+        } catch (err) {
+            console.log(`>> error while getting blogs data -- ${err}`);
+            document.getElementById("users-grid").innerHTML = '<p style="color: black;background-color: #ddffdd;">Sorry, the server is not responding. Please try again later.</p>';
+        }
+    }
+
+    function togglePopup() {
+            
+            const popup = document.getElementById('popup');
+            popup.classList.toggle('active');
+            console.log(`popup toggled at ${new Date()}`);
+
+    }
+
+    // helper for delete user
+    async function deleteHandler(event){
+        try{
+
+
+
+            const clickedElement = event.target;
+            var userId = clickedElement.getAttribute('userId');
+            // can add more attribute and get here -- similar to userId ---
+            console.log(`admin requested to delete user with id ${userId}`);
+
+
+            const exists = deletedIds.includes(userId);
+
+            if (exists) {
+                console.log(`${userId} exists in deletedIds.`);
+                // already deleted by admin - - - 
+                alert("Admin has already deleted account for user "+userId);
+                return;
+            }
+            console.log(`\n\n\n\n - - - -${userId} does not exist in deletedIds.`);
+
+            // user_id_deleted
+
+            // delete route : /delete-user/:userId
+            try {
+                // Make a PUT request to update the user profile
+                const response = await fetch(`/delete-user/${userId}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    document.getElementById("user_id_deleted").textContent = `Admin has deleted account of user with id ${userId}`;
+                    const data = await response.json();
+                    console.log('\t>Profile deleted successfully<');
+                    // console.log(data);
+                    deletedIds.push(userId);
+
+
+                } else {
+                    document.getElementById("user_id_deleted").textContent = `Account for id ${userId} could not be deleted`;
+                    console.error('Error deleting profile:', response.statusText);
+                }
+            } catch (error) {
+                document.getElementById("user_id_deleted").textContent = `Account for id ${userId} could not be deleted`;
+                console.error('Network error:', error);
+            }
+
+            togglePopup();
+            setTimeout(togglePopup,2000);
+            
+            getUsersList();
+
+        }catch(err){
+            console.log(`failed to delete user - - ${err}`);
+        }
+    }
+
+    // renderUsersDiv
+    function renderUsersDiv(){
+        console.log(`> > > > rendering users now < < < < < `);
+        const usersGrid = document.getElementById('users-grid');
+        usersGrid.innerHTML = ''; // clear old content of usersGrid
+
+
+        var users = usersList;
+        console.log(`> total users to render : ${users.length}`);
+
+        baseGrid = `<div class="user-info-header">User Name</div>
+                    <div class="user-info-header">First Name</div>
+                    <div class="user-info-header">Last Name</div>
+                    <div class="user-info-header">Bio</div>
+                    <div class="user-info-header">Delete</div>
+                `;
+
+        // give base html
+        usersGrid.innerHTML = baseGrid;
+
+        usersList.forEach(user => {
+            // 1
+            var currDiv = document.createElement('div');
+            currDiv.classList = 'user-info-item';
+            currDiv.textContent = user.username;
+            // 2
+            var currDiv2 = document.createElement('div');
+            currDiv2.classList = 'user-info-item';
+            currDiv2.textContent = user.firstName;
+            // 3
+            var currDiv3 = document.createElement('div');
+            currDiv3.classList = 'user-info-item';
+            currDiv3.textContent = user.lastName;
+            // 4
+            var currDiv4 = document.createElement('div');
+            currDiv4.classList = 'user-info-item';
+            currDiv4.textContent = user.bio;
+
+            // 5
+            var delBtn = document.createElement('a');
+            delBtn.textContent = 'Click To Delete'
+            delBtn.classList.add('del-btn');
+            delBtn.classList.add('user-info-item');
+            delBtn.href='#'
+            delBtn.id = `delete-${user.user_id}`;
+            delBtn.setAttribute('userId', user.user_id);
+            // add event listener - - - 
+            delBtn.addEventListener('click',function (event){
+                event.preventDefault();
+                // get attribute and delete request that users  - - - - 
+                deleteHandler(event);
+            });
+
+
+
+            usersGrid.appendChild(currDiv); // username
+            usersGrid.appendChild(currDiv2); // fname
+            usersGrid.appendChild(currDiv3); //lname
+            usersGrid.appendChild(currDiv4); // bio
+            usersGrid.appendChild(delBtn); // del btn
+
+            
+        });
+
+        // now loop over users
+
+
+        // loop over list of users and create block -- but first append header row again - - - - - - 
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Call getBlogData when the DOM content is fully loaded
+        getUsersList();
+
+    });
+
+</script>
+
+</html>
